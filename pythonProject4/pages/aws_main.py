@@ -51,6 +51,10 @@ def compare_images(imageA, imageB):
 # Streamlit App
 st.title("Image Comparison")
 
+if st.button("Logout"):
+    st.session_state["logged_in"] = False
+    st.experimental_rerun()
+
 # Hardcoding the user_id for testing purposes
 user_id = 'test_user'
 
@@ -83,8 +87,15 @@ if photo is not None:
                 rotated_image_resized = rotated_image.resize((min_width, min_height))
                 existing_image_resized = existing_image.resize((min_width, min_height))
 
+                # Debug: Display the resized images
+                st.image(rotated_image_resized, caption=f"Rotated Image (Angle: {rotated_image_resized})")
+                st.image(existing_image_resized, caption="Existing Image Resized")
+
                 score = compare_images(rotated_image_resized, existing_image_resized)
                 comparison_scores.append(score)
+
+                # Debug: Display the comparison score
+                st.write(f"Comparison score: {score}")
 
             if max(comparison_scores) > 0.45:
                 st.write("The uploaded image is similar to an existing image.")
