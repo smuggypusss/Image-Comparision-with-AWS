@@ -16,7 +16,7 @@ st.markdown(
 )
 # Initialize Firebase Admin SDK
 if not firebase_admin._apps:
-    cred = credentials.Certificate("test.json")
+    cred = credentials.Certificate("pythonProject4/test.json")
     firebase_admin.initialize_app(cred)
 
 # Streamlit app
