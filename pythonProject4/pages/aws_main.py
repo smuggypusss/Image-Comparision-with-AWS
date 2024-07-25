@@ -59,7 +59,7 @@ def load_lottie_url(url):
     return r.json()
 
 # Streamlit App
-st.title("Image Comparison")
+st.title("Upload the image of the plant")
 
 if st.button("Logout"):
     st.session_state["logged_in"] = False
