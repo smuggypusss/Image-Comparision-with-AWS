@@ -7,7 +7,18 @@ from io import BytesIO
 from datetime import datetime
 from streamlit_lottie import st_lottie
 import requests
+st.set_page_config(initial_sidebar_state="collapsed")
 
+st.markdown(
+    """
+<style>
+    [data-testid="collapsedControl"] {
+        display: none
+    }
+</style>
+""",
+    unsafe_allow_html=True,
+)
 # AWS S3 Configuration
 AWS_ACCESS_KEY = 'AKIAW3MEE26ZFEGENAFU'
 AWS_SECRET_ACCESS_KEY = '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'
