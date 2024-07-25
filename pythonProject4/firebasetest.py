@@ -20,7 +20,7 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
 # Streamlit app
-st.title("Image Comparison App with Firebase Authentication")
+st.title("Log in to upload image")
 
 # User authentication
 if "logged_in" not in st.session_state:
