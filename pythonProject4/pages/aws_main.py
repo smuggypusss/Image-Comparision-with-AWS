@@ -111,6 +111,7 @@ if photo is not None:
 
     if original:
         st.success("The uploaded image is original.")
+        st.success("congratulations, your tokens will be credited to your account soon! ")
     else:
 
         st.error("The uploaded image is flagged by our system as non-original. If you believe this is incorrect, please contact support.")
