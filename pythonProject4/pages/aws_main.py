@@ -19,13 +19,13 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-# AWS S3 Configuration
+
 AWS_ACCESS_KEY = 'AKIAW3MEE26ZFEGENAFU'
 AWS_SECRET_ACCESS_KEY = '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'
 S3_BUCKET_NAME = 'envosafe1'
 AWS_REGION_NAME = 'ap-southeast-2'
 
-# Initialize Boto3 S3 client
+
 s3 = boto3.client(service_name='s3', aws_access_key_id=AWS_ACCESS_KEY,
                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=AWS_REGION_NAME)
 
@@ -62,31 +62,30 @@ def compare_images(imageA, imageB):
     score, _ = ssim(grayA, grayB, full=True)
     return score
 
-# Load Lottie animation from URL
+
 def load_lottie_url(url):
     r = requests.get(url)
     if r.status_code != 200:
         return None
     return r.json()
 
-# Streamlit App
+
 st.title("Upload the image of the plant")
 
 if st.button("Logout"):
     st.session_state["logged_in"] = False
     st.experimental_rerun()
 
-# Hardcoding the user_id for testing purposes
 user_id = 'test_user'
 
-# Camera input for taking a photo
+
 photo = st.camera_input("Take a photo")
 
 if photo is not None:
     image = Image.open(photo)
     compressed_image_file = compress_image(image)
 
-    # Generate a unique filename using timestamp
+    
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     filename = f"uploaded_photo_{timestamp}.jpg"
     photo_url = upload_to_s3(compressed_image_file, user_id, filename)
@@ -99,7 +98,7 @@ if photo is not None:
     if 'Contents' in existing_photos:
         for obj in existing_photos['Contents']:
             if obj['Key'] == f"{user_id}/{filename}":
-                continue  # Skip comparing the image with itself
+                continue  
 
             existing_photo_file = download_from_s3(user_id, obj['Key'].split('/')[-1])
             existing_image = Image.open(existing_photo_file)
