@@ -4,6 +4,9 @@ from skimage.metrics import structural_similarity as ssim
 import boto3
 from PIL import Image, ImageOps
 from io import BytesIO
+from datetime import datetime
+from streamlit_lottie import st_lottie
+import requests
 
 # AWS S3 Configuration
 AWS_ACCESS_KEY = 'AKIAW3MEE26ZFEGENAFU'
@@ -48,6 +51,13 @@ def compare_images(imageA, imageB):
     score, _ = ssim(grayA, grayB, full=True)
     return score
 
+# Load Lottie animation from URL
+def load_lottie_url(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
 # Streamlit App
 st.title("Image Comparison")
 
@@ -64,7 +74,12 @@ photo = st.camera_input("Take a photo")
 if photo is not None:
     image = Image.open(photo)
     compressed_image_file = compress_image(image)
-    photo_url = upload_to_s3(compressed_image_file, user_id, "uploaded_photo.jpg")
+
+    # Generate a unique filename using timestamp
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = f"uploaded_photo_{timestamp}.jpg"
+    photo_url = upload_to_s3(compressed_image_file, user_id, filename)
+
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
     existing_photos = s3.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=f"{user_id}/")
@@ -72,7 +87,7 @@ if photo is not None:
 
     if 'Contents' in existing_photos:
         for obj in existing_photos['Contents']:
-            if obj['Key'] == f"{user_id}/uploaded_photo.jpg":
+            if obj['Key'] == f"{user_id}/{filename}":
                 continue  # Skip comparing the image with itself
 
             existing_photo_file = download_from_s3(user_id, obj['Key'].split('/')[-1])
@@ -84,25 +99,20 @@ if photo is not None:
             for rotated_image in rotated_images:
                 min_height = min(rotated_image.height, existing_image.height)
                 min_width = min(rotated_image.width, existing_image.width)
-                rotated_image_resized = rotated_image.resize((min_width, min_height))
-                existing_image_resized = existing_image.resize((min_width, min_height))
-
-                # Debug: Display the resized images
-                st.image(rotated_image_resized, caption=f"Rotated Image (Angle: {rotated_image_resized})")
-                st.image(existing_image_resized, caption="Existing Image Resized")
+                rotated_image_resized = rotated_image.resize((min_width, min_height), Image.Resampling.LANCZOS)
+                existing_image_resized = existing_image.resize((min_width, min_height), Image.Resampling.LANCZOS)
 
                 score = compare_images(rotated_image_resized, existing_image_resized)
                 comparison_scores.append(score)
 
-                # Debug: Display the comparison score
-                st.write(f"Comparison score: {score}")
-
-            if max(comparison_scores) > 0.45:
-                st.write("The uploaded image is similar to an existing image.")
+            if max(comparison_scores) > 0.30:
                 original = False
                 break
 
-    if 'Contents' not in existing_photos or original:
-        st.write("The uploaded image is original.")
+    if original:
+        st.success("The uploaded image is original.")
     else:
-        st.write("The uploaded image is not original.")
+
+        st.error("The uploaded image is flagged by our system as non-original. If you believe this is incorrect, please contact support.")
+
+        st.write("If you want to contest this result, please [contact us](mailto:support@example.com).")
