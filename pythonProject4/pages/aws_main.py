@@ -105,7 +105,7 @@ if photo is not None:
                 score = compare_images(rotated_image_resized, existing_image_resized)
                 comparison_scores.append(score)
 
-            if max(comparison_scores) > 0.30:
+            if max(comparison_scores) > 0.60:
                 original = False
                 break
 
